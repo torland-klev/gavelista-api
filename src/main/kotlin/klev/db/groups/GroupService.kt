@@ -12,7 +12,7 @@ import klev.db.users.UserService
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.kotlin.datetime.CurrentTimestamp
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.statements.UpdateStatement
 import java.util.UUID
@@ -46,7 +46,7 @@ class GroupService(
         update[name] = obj.name
         update[createdBy] = obj.createdBy.id
         update[visibility] = obj.visibility
-        update[updated] = CurrentTimestamp()
+        update[updated] = CurrentTimestamp
     }
 
     override suspend fun create(obj: Group): Group {
@@ -66,7 +66,7 @@ class GroupService(
             emptyList()
         } else {
             dbQuery {
-                Groups.select { createdBy eq userId }.map { readMap(it) }
+                Groups.selectAll().where { createdBy eq userId }.map { readMap(it) }
             }
         }
 

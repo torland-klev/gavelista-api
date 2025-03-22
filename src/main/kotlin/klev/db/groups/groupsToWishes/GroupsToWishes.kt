@@ -10,6 +10,6 @@ import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 object GroupsToWishes : UUIDTable() {
     val groupId = uuid("groupId").references(Groups.id, onDelete = ReferenceOption.CASCADE)
     val wishId = uuid("wishId").references(Wishes.id, onDelete = ReferenceOption.CASCADE)
-    val created = timestamp("created").defaultExpression(CurrentTimestamp())
-    val updated = timestamp("updated").defaultExpression(CurrentTimestamp())
+    val created = timestamp("created").defaultExpression(CurrentTimestamp)
+    val updated = timestamp("updated").defaultExpression(CurrentTimestamp)
 }

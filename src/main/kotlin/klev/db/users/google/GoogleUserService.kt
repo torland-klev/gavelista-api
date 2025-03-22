@@ -5,7 +5,7 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.kotlin.datetime.CurrentTimestamp
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
@@ -15,7 +15,7 @@ class GoogleUserService(
 ) {
     init {
         transaction(database) {
-            SchemaUtils.createMissingTablesAndColumns(GoogleUsers)
+            SchemaUtils.create(GoogleUsers)
         }
     }
 
@@ -24,7 +24,8 @@ class GoogleUserService(
     private suspend fun read(id: String): GoogleUser? =
         dbQuery {
             GoogleUsers
-                .select { GoogleUsers.id eq id }
+                .selectAll()
+                .where { GoogleUsers.id eq id }
                 .map {
                     GoogleUser(
                         id = id,
@@ -47,7 +48,7 @@ class GoogleUserService(
                 it[email] = user.email
                 it[verifiedEmail] = user.verifiedEmail
                 it[picture] = user.picture
-                it[updated] = CurrentTimestamp()
+                it[updated] = CurrentTimestamp
             }
         }
     }

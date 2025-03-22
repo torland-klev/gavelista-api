@@ -1,4 +1,3 @@
-val kotlinVersion: String by project
 val logbackVersion: String by project
 val exposedVersion: String by project
 val psqlVersion: String by project
@@ -6,9 +5,9 @@ val dotenvVersion: String by project
 val angusMailVersion: String by project
 
 plugins {
-    kotlin("jvm") version "2.1.0"
-    id("io.ktor.plugin") version "3.0.2"
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.1.0"
+    kotlin("jvm") version "2.1.20"
+    id("io.ktor.plugin") version "3.1.1"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.1.20"
 }
 
 group = "klev"
@@ -43,7 +42,7 @@ dependencies {
     implementation("io.ktor:ktor-server-netty-jvm")
     implementation("io.ktor:ktor-server-swagger")
 
-    implementation("com.auth0:java-jwt:4.4.0")
+    implementation("com.auth0:java-jwt:4.5.0")
 
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
@@ -51,6 +50,5 @@ dependencies {
 
     implementation("org.postgresql:postgresql:$psqlVersion")
 
-    testImplementation("io.ktor:ktor-server-tests-jvm")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:2.1.20")
 }

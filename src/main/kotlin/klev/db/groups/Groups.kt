@@ -9,6 +9,6 @@ object Groups : UUIDTable() {
     val name = varchar("name", 31)
     val createdBy = uuid("createdBy").references(Users.id)
     val visibility = enumerationByName<GroupVisibility>("visibility", 15)
-    val created = timestamp("created").defaultExpression(CurrentTimestamp())
-    val updated = timestamp("updated").defaultExpression(CurrentTimestamp())
+    val created = timestamp("created").defaultExpression(CurrentTimestamp)
+    val updated = timestamp("updated").defaultExpression(CurrentTimestamp)
 }

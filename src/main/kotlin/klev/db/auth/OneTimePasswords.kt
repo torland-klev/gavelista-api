@@ -8,6 +8,6 @@ object OneTimePasswords : UUIDTable() {
     val email = varchar(name = "email", length = 127)
     val code = integer(name = "code")
     val validUntil = timestamp("validUntil")
-    val created = timestamp("created").defaultExpression(CurrentTimestamp())
-    val updated = timestamp("updated").defaultExpression(CurrentTimestamp())
+    val created = timestamp("created").defaultExpression(CurrentTimestamp)
+    val updated = timestamp("updated").defaultExpression(CurrentTimestamp)
 }

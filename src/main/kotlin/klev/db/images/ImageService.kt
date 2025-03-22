@@ -8,7 +8,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.kotlin.datetime.CurrentTimestamp
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.statements.UpdateStatement
 import java.util.UUID
@@ -43,7 +43,7 @@ class ImageService(
         update[Images.userId] = obj.userId
         update[Images.image] = obj.image
         update[Images.fileType] = obj.fileType?.toString()
-        update[Images.updated] = CurrentTimestamp()
+        update[Images.updated] = CurrentTimestamp
     }
 
     suspend fun read(
@@ -53,7 +53,11 @@ class ImageService(
         null
     } else {
         dbQuery {
-            Images.select { (Images.userId eq userId) and (Images.id eq id) }.map { readMap(it) }.singleOrNull()
+            Images
+                .selectAll()
+                .where { (Images.userId eq userId) and (Images.id eq id) }
+                .map { readMap(it) }
+                .singleOrNull()
         }
     }
 

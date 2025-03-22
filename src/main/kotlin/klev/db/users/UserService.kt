@@ -20,7 +20,7 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.kotlin.datetime.CurrentTimestamp
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
@@ -35,7 +35,7 @@ class UserService(
 ) {
     init {
         transaction(database) {
-            SchemaUtils.createMissingTablesAndColumns(Users, UsersToGoogleUsers, UsersToAppleUsers, UsersToEmailUsers)
+            SchemaUtils.create(Users, UsersToGoogleUsers, UsersToAppleUsers, UsersToEmailUsers)
         }
     }
 
@@ -58,7 +58,8 @@ class UserService(
         } else {
             dbQuery {
                 Users
-                    .select { Users.id eq id }
+                    .selectAll()
+                    .where { Users.id eq id }
                     .map { User(id = id, firstName = it[Users.firstName], lastName = it[Users.lastName], email = it[Users.email]) }
                     .singleOrNull()
             }
@@ -68,7 +69,8 @@ class UserService(
         val userId =
             dbQuery {
                 UsersToGoogleUsers
-                    .select {
+                    .selectAll()
+                    .where {
                         UsersToGoogleUsers.googleUserId eq googleUser.id
                     }.singleOrNull()
                     ?.getOrNull(UsersToGoogleUsers.userId)
@@ -88,7 +90,8 @@ class UserService(
         val userId =
             dbQuery {
                 UsersToAppleUsers
-                    .select {
+                    .selectAll()
+                    .where {
                         UsersToAppleUsers.appleUserId eq appleUser.userIdentifier
                     }.singleOrNull()
                     ?.getOrNull(UsersToAppleUsers.userId)
@@ -147,7 +150,7 @@ class UserService(
         dbQuery {
             UsersToGoogleUsers.update({ UsersToGoogleUsers.googleUserId eq googleUser.id }) {
                 it[authToken] = token
-                it[updated] = CurrentTimestamp()
+                it[updated] = CurrentTimestamp
             }
         }
     }
@@ -158,12 +161,14 @@ class UserService(
     suspend fun getUserByToken(tokenCredential: BearerTokenCredential) =
         dbQuery {
             UsersToGoogleUsers
-                .select { UsersToGoogleUsers.authToken eq tokenCredential.token }
+                .selectAll()
+                .where { UsersToGoogleUsers.authToken eq tokenCredential.token }
                 .singleOrNull()
                 ?.get(UsersToGoogleUsers.userId)
         }?.let { read(it) } ?: dbQuery {
             UsersToEmailUsers
-                .select { UsersToEmailUsers.authToken eq tokenCredential.token }
+                .selectAll()
+                .where { UsersToEmailUsers.authToken eq tokenCredential.token }
                 .singleOrNull()
                 ?.get(UsersToEmailUsers.userId)
         }?.let { read(it) }
@@ -184,7 +189,8 @@ class UserService(
         } else {
             dbQuery {
                 Users
-                    .select { Users.email eq email }
+                    .selectAll()
+                    .where { Users.email eq email }
                     .map {
                         User(
                             id = it[Users.id].value,
@@ -198,9 +204,17 @@ class UserService(
 
     suspend fun getAuthTokenIfExistingUser(user: User) =
         dbQuery {
-            UsersToGoogleUsers.select { UsersToGoogleUsers.userId eq user.id }.singleOrNull()?.get(UsersToGoogleUsers.authToken)
+            UsersToGoogleUsers
+                .selectAll()
+                .where { UsersToGoogleUsers.userId eq user.id }
+                .singleOrNull()
+                ?.get(UsersToGoogleUsers.authToken)
         } ?: dbQuery {
-            UsersToEmailUsers.select { UsersToEmailUsers.userId eq user.id }.singleOrNull()?.get(UsersToEmailUsers.authToken)
+            UsersToEmailUsers
+                .selectAll()
+                .where { UsersToEmailUsers.userId eq user.id }
+                .singleOrNull()
+                ?.get(UsersToEmailUsers.authToken)
         }
 
     private fun generateAuthToken(email: String) =
@@ -232,14 +246,14 @@ class UserService(
                 it[firstName] = partial.firstName ?: user.firstName
                 it[lastName] = partial.lastName ?: user.lastName
                 it[email] = partial.email ?: user.email
-                it[updated] = CurrentTimestamp()
+                it[updated] = CurrentTimestamp
             }
         }
     } ?: 0
 
     suspend fun allPublic() =
         dbQuery {
-            Users.select { (Users.firstName neq null) and (Users.lastName neq null) }.map {
+            Users.selectAll().where { (Users.firstName neq null) and (Users.lastName neq null) }.map {
                 User(
                     id = it[Users.id].value,
                     firstName = it[Users.firstName],

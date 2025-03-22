@@ -8,6 +8,6 @@ import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 
 abstract class UserTable : UUIDTable() {
     val userId = uuid("userId").references(Users.id, onDelete = ReferenceOption.CASCADE)
-    val created = timestamp("created").defaultExpression(CurrentTimestamp())
-    val updated = timestamp("updated").defaultExpression(CurrentTimestamp())
+    val created = timestamp("created").defaultExpression(CurrentTimestamp)
+    val updated = timestamp("updated").defaultExpression(CurrentTimestamp)
 }

@@ -12,7 +12,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.kotlin.datetime.CurrentTimestamp
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.statements.UpdateStatement
 
@@ -52,12 +52,12 @@ class OneTimePasswordService(
 
     private suspend fun deleteAllInvalidForEmail(email: String) =
         dbQuery {
-            OneTimePasswords.deleteWhere { (OneTimePasswords.email eq email) and (validUntil lessEq CurrentTimestamp()) }
+            OneTimePasswords.deleteWhere { (OneTimePasswords.email eq email) and (validUntil lessEq CurrentTimestamp) }
         }
 
     suspend fun hasMoreThanThreeValid(email: String) =
         dbQuery {
-            OneTimePasswords.select { (OneTimePasswords.email eq email) and (validUntil greaterEq CurrentTimestamp()) }.count() > 3
+            OneTimePasswords.selectAll().where { (OneTimePasswords.email eq email) and (validUntil greaterEq CurrentTimestamp) }.count() > 3
         }
 
     suspend fun generateAndSendOTP(email: String) {
@@ -73,8 +73,9 @@ class OneTimePasswordService(
         } else {
             dbQuery {
                 OneTimePasswords
-                    .select {
-                        (email eq content.email) and (code eq content.code) and (validUntil greaterEq CurrentTimestamp())
+                    .selectAll()
+                    .where {
+                        (email eq content.email) and (code eq content.code) and (validUntil greaterEq CurrentTimestamp)
                     }.count() >=
                     1
             }

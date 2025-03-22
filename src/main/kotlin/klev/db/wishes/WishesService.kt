@@ -67,7 +67,7 @@ class WishesService(
         update[url] = obj.url
         update[img] = obj.img
         update[visibility] = obj.visibility
-        update[updated] = CurrentTimestamp()
+        update[updated] = CurrentTimestamp
         update[title] = obj.title
     }
 

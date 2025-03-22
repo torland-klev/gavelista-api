@@ -8,6 +8,6 @@ object Users : UUIDTable() {
     val firstName = varchar("firstName", length = 63).nullable()
     val lastName = varchar("lastName", length = 63).nullable()
     val email = varchar("email", length = 127)
-    val created = timestamp("created").defaultExpression(CurrentTimestamp())
-    val updated = timestamp("updated").defaultExpression(CurrentTimestamp())
+    val created = timestamp("created").defaultExpression(CurrentTimestamp)
+    val updated = timestamp("updated").defaultExpression(CurrentTimestamp)
 }

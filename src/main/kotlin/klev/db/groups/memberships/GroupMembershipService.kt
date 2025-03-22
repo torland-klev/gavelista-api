@@ -12,7 +12,7 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.kotlin.datetime.CurrentTimestamp
 import org.jetbrains.exposed.sql.or
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.statements.UpdateStatement
 import java.util.UUID
@@ -46,14 +46,14 @@ class GroupMembershipService(
         update[groupId] = obj.groupId
         update[userId] = obj.userId
         update[role] = obj.role
-        update[updated] = CurrentTimestamp()
+        update[updated] = CurrentTimestamp
     }
 
     suspend fun isMember(
         userId: UUID,
         groupId: UUID,
     ) = dbQuery {
-        GroupMemberships.select { (GroupMemberships.userId eq userId) and (GroupMemberships.groupId eq groupId) }.count()
+        GroupMemberships.selectAll().where { (GroupMemberships.userId eq userId) and (GroupMemberships.groupId eq groupId) }.count()
     } > 0
 
     suspend fun isOwner(
@@ -61,7 +61,8 @@ class GroupMembershipService(
         groupId: UUID,
     ) = dbQuery {
         GroupMemberships
-            .select {
+            .selectAll()
+            .where {
                 (GroupMemberships.userId eq userId) and (GroupMemberships.groupId eq groupId) and
                     (role eq GroupMembershipRole.OWNER)
             }.count()
@@ -72,7 +73,8 @@ class GroupMembershipService(
         groupId: UUID,
     ) = dbQuery {
         GroupMemberships
-            .select {
+            .selectAll()
+            .where {
                 (GroupMemberships.userId eq userId) and (GroupMemberships.groupId eq groupId) and
                     ((role eq GroupMembershipRole.ADMIN) or (role eq GroupMembershipRole.OWNER))
             }.count()
@@ -80,7 +82,7 @@ class GroupMembershipService(
 
     suspend fun allByGroup(groupId: UUID) =
         dbQuery {
-            GroupMemberships.select { GroupMemberships.groupId eq groupId }.map { readMap(it) }
+            GroupMemberships.selectAll().where { GroupMemberships.groupId eq groupId }.map { readMap(it) }
         }
 
     override suspend fun delete(id: UUID) =
@@ -93,7 +95,8 @@ class GroupMembershipService(
         userId: UUID,
     ) = dbQuery {
         GroupMemberships
-            .select { (GroupMemberships.groupId eq groupId) and (GroupMemberships.userId eq userId) }
+            .selectAll()
+            .where { (GroupMemberships.groupId eq groupId) and (GroupMemberships.userId eq userId) }
             .map {
                 readMap(
                     it,

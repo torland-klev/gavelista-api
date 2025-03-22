@@ -8,7 +8,6 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.statements.UpdateStatement
@@ -23,7 +22,7 @@ abstract class CRUD<T>(
 ) {
     init {
         transaction(database) {
-            SchemaUtils.createMissingTablesAndColumns(table)
+            SchemaUtils.create(table)
         }
     }
 
@@ -52,7 +51,8 @@ abstract class CRUD<T>(
         } else {
             dbQuery {
                 table
-                    .select { table.id eq id }
+                    .selectAll()
+                    .where { table.id eq id }
                     .map { readMap(it) }
                     .singleOrNull()
             }

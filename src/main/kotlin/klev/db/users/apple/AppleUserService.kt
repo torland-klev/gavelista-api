@@ -7,7 +7,7 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.kotlin.datetime.CurrentTimestamp
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
@@ -17,7 +17,7 @@ class AppleUserService(
 ) {
     init {
         transaction(database) {
-            SchemaUtils.createMissingTablesAndColumns(AppleUsers)
+            SchemaUtils.create(AppleUsers)
         }
     }
 
@@ -26,7 +26,8 @@ class AppleUserService(
     private suspend fun read(id: String): AppleUser? =
         dbQuery {
             AppleUsers
-                .select { AppleUsers.id eq id }
+                .selectAll()
+                .where { AppleUsers.id eq id }
                 .map {
                     AppleUser(
                         userIdentifier = id,
@@ -47,7 +48,7 @@ class AppleUserService(
                 it[email] = user.email
                 it[authorizationCode] = user.authorizationCode
                 it[identityToken] = user.identityToken
-                it[GoogleUsers.updated] = CurrentTimestamp()
+                it[GoogleUsers.updated] = CurrentTimestamp
             }
         }
 
@@ -78,7 +79,8 @@ class AppleUserService(
     suspend fun read(appleUserDTO: AppleUserDTO) =
         dbQuery {
             AppleUsers
-                .select {
+                .selectAll()
+                .where {
                     (AppleUsers.authorizationCode eq appleUserDTO.authorizationCode) and (AppleUsers.id eq appleUserDTO.userIdentifier)
                 }.singleOrNull()
                 ?.get(AppleUsers.id)

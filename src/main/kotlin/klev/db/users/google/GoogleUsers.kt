@@ -12,8 +12,8 @@ object GoogleUsers : Table() {
     val email = varchar("email", length = 127)
     val verifiedEmail = bool("verifiedEmail")
     val picture = varchar("picture", length = 255)
-    val created = timestamp("created").defaultExpression(CurrentTimestamp())
-    val updated = timestamp("updated").defaultExpression(CurrentTimestamp())
+    val created = timestamp("created").defaultExpression(CurrentTimestamp)
+    val updated = timestamp("updated").defaultExpression(CurrentTimestamp)
 
     override val primaryKey = PrimaryKey(id)
 }

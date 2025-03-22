@@ -22,7 +22,7 @@ class InvitationService(
 ) : UserCRUD<Invitation>(database, Invitations) {
     init {
         transaction(database) {
-            SchemaUtils.createMissingTablesAndColumns(AcceptedInvites)
+            SchemaUtils.create(AcceptedInvites)
         }
     }
 

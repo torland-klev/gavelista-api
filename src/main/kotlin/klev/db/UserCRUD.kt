@@ -4,7 +4,7 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.update
 import java.util.UUID
 
@@ -17,7 +17,7 @@ abstract class UserCRUD<T>(
             emptyList()
         } else {
             dbQuery {
-                table.select { table.userId eq userId }.map { readMap(it) }
+                table.selectAll().where { table.userId eq userId }.map { readMap(it) }
             }
         }
 
@@ -35,7 +35,11 @@ abstract class UserCRUD<T>(
         null
     } else {
         dbQuery {
-            table.select { (table.userId eq userId) and (table.id eq id) }.map { readMap(it) }.singleOrNull()
+            table
+                .selectAll()
+                .where { (table.userId eq userId) and (table.id eq id) }
+                .map { readMap(it) }
+                .singleOrNull()
         }
     }
 
