@@ -1,6 +1,7 @@
 package klev.db.groups.invitations
 
 import klev.db.UserCRUD
+import klev.db.groups.invitations.Invitations.invitee
 import klev.db.groups.invitations.Invitations.validUntil
 import klev.db.groups.memberships.GroupMembership
 import klev.db.groups.memberships.GroupMembershipRole
@@ -31,6 +32,7 @@ class InvitationService(
             id = input[Invitations.id].value,
             groupId = input[Invitations.groupId],
             invitedBy = input[Invitations.userId],
+            invitee = input[invitee],
             validUntil = input[validUntil],
         )
 
@@ -43,6 +45,7 @@ class InvitationService(
         statement[groupId] = obj.groupId
         statement[userId] = obj.invitedBy
         statement[validUntil] = obj.validUntil
+        statement[invitee] = obj.invitee
     }
 
     override fun updateMap(
@@ -52,8 +55,9 @@ class InvitationService(
 
     suspend fun create(
         groupId: UUID,
+        invitee: UUID,
         invitedBy: UUID,
-    ) = create(Invitation(id = UUID.randomUUID(), groupId = groupId, invitedBy = invitedBy))
+    ) = create(Invitation(id = UUID.randomUUID(), groupId = groupId, invitedBy = invitedBy, invitee = invitee))
 
     suspend fun completeInvitation(
         inviteId: UUID,

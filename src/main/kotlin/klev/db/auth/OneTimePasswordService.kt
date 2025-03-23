@@ -18,7 +18,7 @@ import org.jetbrains.exposed.sql.statements.UpdateStatement
 
 class OneTimePasswordService(
     database: Database,
-    private val emailService: OneTimePasswordEmailService,
+    private val emailService: EmailService,
 ) : CRUD<OneTimePassword>(database, OneTimePasswords) {
     override suspend fun readMap(input: ResultRow) =
         OneTimePassword(

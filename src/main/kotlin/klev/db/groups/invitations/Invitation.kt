@@ -12,6 +12,7 @@ import kotlin.time.toDuration
 @Serializable
 data class Invitation(
     @Serializable(with = UUIDSerializer::class) val id: UUID,
+    @Serializable(with = UUIDSerializer::class) val invitee: UUID,
     @Serializable(with = UUIDSerializer::class) val invitedBy: UUID,
     @Serializable(with = UUIDSerializer::class) val groupId: UUID,
     val validUntil: Instant = now().plus(3.toDuration(DurationUnit.DAYS)),

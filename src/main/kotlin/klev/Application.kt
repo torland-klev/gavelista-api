@@ -12,7 +12,7 @@ import io.ktor.server.auth.UserIdPrincipal
 import io.ktor.server.auth.principal
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import klev.db.auth.OneTimePasswordEmailService
+import klev.db.auth.EmailService
 import klev.db.auth.OneTimePasswordService
 import klev.db.groups.GroupService
 import klev.db.groups.GroupsRoutes
@@ -66,11 +66,8 @@ private val images =
         password = env("IMG_DB_PASSWORD"),
     )
 
-private val imageService = ImageService(database = images)
 private val appleUserService = AppleUserService(database = database)
 private val googleUserService = GoogleUserService(database = database)
-private val otpMailService = OneTimePasswordEmailService(httpClient = applicationHttpClient)
-private val otpService = OneTimePasswordService(database = database, emailService = otpMailService)
 private val userService =
     UserService(
         database = database,
@@ -78,9 +75,13 @@ private val userService =
         httpClient = applicationHttpClient,
         googleUserService = googleUserService,
     )
+private val imageService = ImageService(database = images)
+
 private val groupsToWishesService = GroupsToWishesService(database = database)
 private val groupMembershipService = GroupMembershipService(database = database)
 private val groupService = GroupService(database = database, groupMembershipService = groupMembershipService, userService = userService)
+private val mailService = EmailService(httpClient = applicationHttpClient, userService = userService, groupService = groupService)
+private val otpService = OneTimePasswordService(database = database, emailService = mailService)
 private val invitationService = InvitationService(database = database, groupMembershipService = groupMembershipService)
 private val wishesService =
     WishesService(
@@ -117,10 +118,11 @@ fun Application.module() {
     configureRouting(
         groupsRoutes =
             GroupsRoutes(
-                groupService = groupService,
-                userService = userService,
                 groupMembershipService = groupMembershipService,
+                groupService = groupService,
                 invitationService = invitationService,
+                mailService = mailService,
+                userService = userService,
                 wishesService = wishesService,
             ),
         userRoutes = UserRoutes(userService = userService),

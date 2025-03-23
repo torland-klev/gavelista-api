@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 data class PartialGroup(
     val name: String? = null,
     val visibility: String? = null,
+    val members: List<String>? = emptyList(),
 ) {
     fun errorMessages() =
         if (name == null) {

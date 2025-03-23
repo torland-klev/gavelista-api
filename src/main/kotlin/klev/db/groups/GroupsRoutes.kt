@@ -5,18 +5,21 @@ import io.ktor.server.application.ApplicationCall
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.RoutingCall
+import klev.db.auth.EmailService
 import klev.db.groups.invitations.InvitationService
 import klev.db.groups.memberships.GroupMembershipService
 import klev.db.users.UserService
 import klev.db.wishes.WishesService
 import klev.oauthUserId
 import klev.routeId
+import java.util.UUID
 
 class GroupsRoutes(
-    private val groupService: GroupService,
-    private val userService: UserService,
     private val groupMembershipService: GroupMembershipService,
+    private val groupService: GroupService,
     private val invitationService: InvitationService,
+    private val mailService: EmailService,
+    private val userService: UserService,
     private val wishesService: WishesService,
 ) {
     suspend fun all(call: ApplicationCall) {
@@ -39,15 +42,28 @@ class GroupsRoutes(
                 if (partialGroupError != null) {
                     call.respond(HttpStatusCode.BadRequest, partialGroupError)
                 } else {
-                    call.respond(
-                        HttpStatusCode.Created,
+                    val createdGroup =
                         groupService.create(
                             Group(
                                 name = partialGroup.name!!,
                                 createdBy = user,
                                 visibility = GroupVisibility.valueOf(partialGroup.visibility!!.uppercase()),
                             ),
-                        ),
+                        )
+                    partialGroup.members?.forEach { memberId ->
+                        val invite =
+                            invitationService.create(
+                                groupId = createdGroup.id,
+                                invitee = UUID.fromString(memberId),
+                                invitedBy = user.id,
+                            )
+
+                        mailService.sendGroupInvite(invite)
+                    }
+
+                    call.respond(
+                        HttpStatusCode.Created,
+                        createdGroup,
                     )
                 }
             }
@@ -121,6 +137,7 @@ class GroupsRoutes(
                     invitationService.create(
                         groupId = group.id,
                         invitedBy = user.id,
+                        invitee = user.id,
                     )
                 call.respond(HttpStatusCode.Created, invite.inviteUrl())
             }
