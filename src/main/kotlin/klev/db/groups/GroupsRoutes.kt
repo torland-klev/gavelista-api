@@ -7,6 +7,8 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.RoutingCall
 import klev.db.auth.EmailService
 import klev.db.groups.invitations.InvitationService
+import klev.db.groups.memberships.GroupMembership
+import klev.db.groups.memberships.GroupMembershipRole
 import klev.db.groups.memberships.GroupMembershipService
 import klev.db.users.UserService
 import klev.db.wishes.WishesService
@@ -180,6 +182,47 @@ class GroupsRoutes(
                 call.respond(HttpStatusCode.Unauthorized)
             } else {
                 call.respond(HttpStatusCode.OK, membership.role.name)
+            }
+        }
+    }
+
+    suspend fun isInGroup(call: RoutingCall) {
+        val userId = call.oauthUserId()
+        val groupId = call.routeId("groupId")
+        if (userId == null || groupId == null) {
+            call.respond(HttpStatusCode.NotFound)
+        } else {
+            val membership = groupMembershipService.byGroupAndUser(groupId, userId)
+            if (membership == null) {
+                call.respond(HttpStatusCode.OK, false)
+            } else {
+                call.respond(HttpStatusCode.OK, true)
+            }
+        }
+    }
+
+    suspend fun joinGroup(call: RoutingCall) {
+        val userId = call.oauthUserId()
+        val groupId = call.routeId("groupId")
+        if (userId == null || groupId == null) {
+            call.respond(HttpStatusCode.NotFound)
+        } else {
+            val group = groupService.getIfHasReadAccess(groupId, userId)
+            val groupMembership = groupMembershipService.byGroupAndUser(groupId, userId)
+            if (groupMembership != null) {
+                call.respond(HttpStatusCode.Unauthorized)
+            } else if (group != null) {
+                val membership =
+                    groupMembershipService.create(
+                        GroupMembership(
+                            groupId = group.id,
+                            userId = userId,
+                            role = GroupMembershipRole.MEMBER,
+                        ),
+                    )
+                call.respond(HttpStatusCode.OK, membership)
+            } else {
+                call.respond(HttpStatusCode.Unauthorized)
             }
         }
     }

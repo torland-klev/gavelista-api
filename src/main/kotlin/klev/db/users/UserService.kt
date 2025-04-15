@@ -262,4 +262,6 @@ class UserService(
                 )
             }
         }
+
+    suspend fun fromIds(ids: Iterable<UUID>) = ids.map { read(it) }
 }

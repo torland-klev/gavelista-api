@@ -125,7 +125,7 @@ fun Application.module() {
                 userService = userService,
                 wishesService = wishesService,
             ),
-        userRoutes = UserRoutes(userService = userService),
+        userRoutes = UserRoutes(userService = userService, groupService = groupService),
         wishesRoutes = WishesRoutes(groupsToWishesService = groupsToWishesService, wishesService = wishesService),
         groupMembershipRoutes =
             GroupMembershipRoutes(

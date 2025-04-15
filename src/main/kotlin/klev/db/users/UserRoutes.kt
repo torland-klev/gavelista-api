@@ -4,16 +4,18 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
+import klev.db.groups.GroupService
 import klev.oauthUserId
 import klev.routeId
 
 class UserRoutes(
     private val userService: UserService,
+    private val groupService: GroupService,
 ) {
     suspend fun get(call: ApplicationCall) {
         val id = call.oauthUserId()
         if (id != null) {
-            call.respond(HttpStatusCode.OK, userService.allPublic())
+            call.respond(HttpStatusCode.OK, userService.fromIds(groupService.allMembersUserIsConnectedTo(id)))
         } else {
             call.respond(HttpStatusCode.NotFound)
         }

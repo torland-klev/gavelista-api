@@ -105,4 +105,8 @@ class GroupService(
                 read(membership.groupId)
             }
         }
+
+    suspend fun allMembersUserIsConnectedTo(id: UUID?) = allUserIsMemberOf(id).memberIds()
+
+    private suspend fun List<Group>.memberIds() = flatMap { group -> groupMembershipService.allByGroup(group.id).map { it.userId } }
 }

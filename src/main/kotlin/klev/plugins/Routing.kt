@@ -86,6 +86,9 @@ fun Application.configureRouting(
                     get("/role") {
                         groupsRoutes.getRoleInGroup(call)
                     }
+                    get("/isMember") {
+                        groupsRoutes.isInGroup(call)
+                    }
                     route("/members") {
                         get {
                             groupMembershipRoutes.allByGroup(call)
@@ -101,6 +104,9 @@ fun Application.configureRouting(
                         }
                         post("/{memberId}") {
                             groupMembershipRoutes.addUserToGroup(call)
+                        }
+                        post("/join") {
+                            groupsRoutes.joinGroup(call)
                         }
                         route("/admins") {
                             get {
