@@ -4,4 +4,5 @@ enum class WishVisibility {
     PRIVATE,
     PUBLIC,
     GROUP,
+    EVENT,
 }

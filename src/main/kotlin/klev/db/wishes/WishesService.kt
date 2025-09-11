@@ -1,11 +1,15 @@
 package klev.db.wishes
 
 import klev.db.UserCRUD
+import klev.db.events.EventService
+import klev.db.events.eventsToWishes.EventToWish
+import klev.db.events.eventsToWishes.EventsToWishesService
 import klev.db.groups.GroupService
 import klev.db.groups.groupsToWishes.GroupToWish
 import klev.db.groups.groupsToWishes.GroupsToWishesService
-import klev.db.groups.memberships.GroupMembershipService
 import klev.db.images.ImageService
+import klev.db.memberships.EventMembershipService
+import klev.db.memberships.GroupMembershipService
 import klev.db.wishes.Wishes.description
 import klev.db.wishes.Wishes.img
 import klev.db.wishes.Wishes.occasion
@@ -28,8 +32,11 @@ class WishesService(
     database: Database,
     private val groupsToWishesService: GroupsToWishesService,
     private val groupMembershipService: GroupMembershipService,
+    private val eventMembershipService: EventMembershipService,
+    private val eventsToWishesService: EventsToWishesService,
     private val groupService: GroupService,
     private val imageService: ImageService,
+    private val eventService: EventService,
 ) : UserCRUD<Wish>(database, Wishes) {
     override fun createMap(
         statement: InsertStatement<Number>,
@@ -169,6 +176,18 @@ class WishesService(
             // Ignore
         }
 
+        try {
+            val eventId = UUID.fromString(partial.eventId)
+            val event = eventService.getIfHasReadAccess(eventId = eventId, userId = userId)
+            if (event != null) {
+                eventsToWishesService.create(EventToWish(eventId = eventId, wishId = wish.id))
+            }
+        } catch (_: IllegalArgumentException) {
+            // Ignore
+        } catch (_: NullPointerException) {
+            // Ignore
+        }
+
         return wish
     }
 
@@ -209,4 +228,23 @@ class WishesService(
         }
 
     suspend fun allUserHasReadAccessTo(userId: UUID?) = allPublic() + allOwnedByUser(userId) + allUserHasGroupAccessTo(userId)
+
+    suspend fun allByEvent(
+        userId: UUID?,
+        eventId: UUID,
+    ): Collection<Wish> =
+        if (userId == null) {
+            emptySet()
+        } else {
+            val eventMembership = eventMembershipService.byEventAndUser(eventId = eventId, userId = userId)
+            if (eventMembership == null) {
+                emptySet()
+            } else {
+                eventsToWishesService.allByEvent(eventMembership.eventId).mapNotNull { read(it.wishId) }.filterNot {
+                    it.visibility ==
+                        WishVisibility.PRIVATE &&
+                        it.userId != userId
+                }
+            }
+        }
 }

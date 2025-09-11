@@ -3,11 +3,11 @@ package klev.db.groups.invitations
 import klev.db.UserCRUD
 import klev.db.groups.invitations.Invitations.invitee
 import klev.db.groups.invitations.Invitations.validUntil
-import klev.db.groups.memberships.GroupMembership
-import klev.db.groups.memberships.GroupMembershipRole
-import klev.db.groups.memberships.GroupMembershipService
-import klev.db.groups.memberships.GroupMemberships.groupId
-import klev.db.groups.memberships.GroupMemberships.userId
+import klev.db.memberships.GroupMembership
+import klev.db.memberships.GroupMembershipService
+import klev.db.memberships.GroupMemberships.groupId
+import klev.db.memberships.GroupMemberships.userId
+import klev.db.memberships.MembershipRole
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.statements.InsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
@@ -55,11 +55,18 @@ class InvitationService(
         obj: Invitation,
     ) = Unit
 
-    suspend fun create(
+    suspend fun groupInvite(
         groupId: UUID,
         invitee: UUID,
         invitedBy: UUID,
     ) = create(Invitation(id = UUID.randomUUID(), groupId = groupId, invitedBy = invitedBy, invitee = invitee))
+
+    // TODO
+    suspend fun eventInvite(
+        eventId: UUID,
+        invitee: UUID,
+        invitedBy: UUID,
+    ) = create(Invitation(id = UUID.randomUUID(), groupId = eventId, invitedBy = invitedBy, invitee = invitee))
 
     suspend fun completeInvitation(
         inviteId: UUID,
@@ -73,7 +80,7 @@ class InvitationService(
                         GroupMembership(
                             groupId = invite.groupId,
                             userId = invitedUser,
-                            role = GroupMembershipRole.MEMBER,
+                            role = MembershipRole.MEMBER,
                         ),
                     )
                 dbQuery {

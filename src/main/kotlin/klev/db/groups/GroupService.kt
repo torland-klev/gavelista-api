@@ -5,9 +5,9 @@ import klev.db.groups.Groups.createdBy
 import klev.db.groups.Groups.name
 import klev.db.groups.Groups.updated
 import klev.db.groups.Groups.visibility
-import klev.db.groups.memberships.GroupMembership
-import klev.db.groups.memberships.GroupMembershipRole
-import klev.db.groups.memberships.GroupMembershipService
+import klev.db.memberships.GroupMembership
+import klev.db.memberships.GroupMembershipService
+import klev.db.memberships.MembershipRole
 import klev.db.users.UserService
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
@@ -58,7 +58,7 @@ class GroupService(
             GroupMembership(
                 groupId = group.id,
                 userId = group.createdBy.id,
-                role = GroupMembershipRole.OWNER,
+                role = MembershipRole.OWNER,
             ),
         )
         return group

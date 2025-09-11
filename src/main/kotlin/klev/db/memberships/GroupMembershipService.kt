@@ -1,10 +1,10 @@
-package klev.db.groups.memberships
+package klev.db.memberships
 
 import klev.db.UserCRUD
 import klev.db.groups.Groups.updated
-import klev.db.groups.memberships.GroupMemberships.groupId
-import klev.db.groups.memberships.GroupMemberships.role
-import klev.db.groups.memberships.GroupMemberships.userId
+import klev.db.memberships.GroupMemberships.groupId
+import klev.db.memberships.GroupMemberships.role
+import klev.db.memberships.GroupMemberships.userId
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
@@ -66,7 +66,7 @@ class GroupMembershipService(
             .selectAll()
             .where {
                 (GroupMemberships.userId eq userId) and (GroupMemberships.groupId eq groupId) and
-                    (role eq GroupMembershipRole.OWNER)
+                    (role eq MembershipRole.OWNER)
             }.count()
     } > 0
 
@@ -78,7 +78,7 @@ class GroupMembershipService(
             .selectAll()
             .where {
                 (GroupMemberships.userId eq userId) and (GroupMemberships.groupId eq groupId) and
-                    ((role eq GroupMembershipRole.ADMIN) or (role eq GroupMembershipRole.OWNER))
+                    ((role eq MembershipRole.ADMIN) or (role eq MembershipRole.OWNER))
             }.count()
     } > 0
 

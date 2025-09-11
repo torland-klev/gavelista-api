@@ -87,6 +87,21 @@ class WishesRoutes(
         } ?: call.respond(HttpStatusCode.Unauthorized)
     }
 
+    suspend fun postForEvent(call: ApplicationCall) {
+        call.oauthUserId()?.let { userId ->
+            val eventId = call.routeId("eventId") ?: call.respond(HttpStatusCode.BadRequest, "Missing required field groupId")
+            val partialWish = call.receive<PartialWish>().copy(eventId = eventId.toString(), visibility = WishVisibility.EVENT.name)
+            if (partialWish.title == null) {
+                call.respond(HttpStatusCode.BadRequest, "Missing required field title")
+            } else {
+                call.respond(
+                    HttpStatusCode.Created,
+                    wishesService.createByPartial(partial = partialWish, userId = userId),
+                )
+            }
+        } ?: call.respond(HttpStatusCode.Unauthorized)
+    }
+
     suspend fun allUserHasCreated(call: ApplicationCall) {
         call.oauthUserId()?.let { userId ->
             val wishCreator = call.routeId("userId")

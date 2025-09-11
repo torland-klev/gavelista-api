@@ -1,4 +1,4 @@
-package klev.db.groups.memberships
+package klev.db.memberships
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
@@ -39,7 +39,7 @@ class GroupMembershipRoutes(
                 groupMembershipService
                     .allByGroup(groupId = group.id)
                     .filter {
-                        it.userId == memberId && it.groupId == group.id && it.role != GroupMembershipRole.OWNER
+                        it.userId == memberId && it.groupId == group.id && it.role != MembershipRole.OWNER
                     }.map { groupMembershipService.delete(it.id) }
             if (deleteSuccesses.isEmpty() || deleteSuccesses.none { it }) {
                 call.respond(HttpStatusCode.NotFound)
@@ -83,7 +83,7 @@ class GroupMembershipRoutes(
                     GroupMembership(
                         groupId = group.id,
                         userId = memberId,
-                        role = GroupMembershipRole.MEMBER,
+                        role = MembershipRole.MEMBER,
                     ),
                 )
             call.respond(HttpStatusCode.OK, membership)
@@ -101,7 +101,7 @@ class GroupMembershipRoutes(
             val users =
                 memberships
                     .filter {
-                        it.role == GroupMembershipRole.ADMIN || it.role == GroupMembershipRole.OWNER
+                        it.role == MembershipRole.ADMIN || it.role == MembershipRole.OWNER
                     }.map { userService.read(it.userId) }
             call.respond(HttpStatusCode.OK, users)
         }
@@ -118,7 +118,7 @@ class GroupMembershipRoutes(
             call.respond(HttpStatusCode.NotFound)
         } else {
             val membership = groupMembershipService.byGroupAndUser(groupId = group.id, userId = adminId)
-            if (membership == null || (membership.role != GroupMembershipRole.ADMIN && membership.role != GroupMembershipRole.OWNER)) {
+            if (membership == null || (membership.role != MembershipRole.ADMIN && membership.role != MembershipRole.OWNER)) {
                 call.respond(HttpStatusCode.NotFound)
             } else {
                 call.respond(HttpStatusCode.OK, membership)
@@ -127,12 +127,12 @@ class GroupMembershipRoutes(
     }
 
     suspend fun makeAdmin(call: ApplicationCall) {
-        setRoleIfAdmin(call, GroupMembershipRole.ADMIN)
+        setRoleIfAdmin(call, MembershipRole.ADMIN)
     }
 
     private suspend fun setRoleIfAdmin(
         call: ApplicationCall,
-        role: GroupMembershipRole,
+        role: MembershipRole,
     ) {
         val userId = call.oauthUserId()
         val groupId = call.routeId("groupId")
@@ -151,7 +151,7 @@ class GroupMembershipRoutes(
                         role = role,
                     ),
                 )
-            if (membership.role == GroupMembershipRole.OWNER) {
+            if (membership.role == MembershipRole.OWNER) {
                 call.respond(HttpStatusCode.MethodNotAllowed, "Cannot change role of owner")
             } else {
                 val membershipAsAdmin = membership.copy(role = role)
@@ -162,7 +162,7 @@ class GroupMembershipRoutes(
     }
 
     suspend fun removeAsAdmin(call: ApplicationCall) {
-        setRoleIfAdmin(call, GroupMembershipRole.MEMBER)
+        setRoleIfAdmin(call, MembershipRole.MEMBER)
     }
 
     suspend fun allByUser(call: RoutingCall) {

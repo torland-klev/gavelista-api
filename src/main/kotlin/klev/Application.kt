@@ -14,14 +14,19 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import klev.db.auth.EmailService
 import klev.db.auth.OneTimePasswordService
+import klev.db.events.EventRoutes
+import klev.db.events.EventService
+import klev.db.events.eventsToWishes.EventsToWishesService
 import klev.db.groups.GroupService
 import klev.db.groups.GroupsRoutes
 import klev.db.groups.groupsToWishes.GroupsToWishesService
 import klev.db.groups.invitations.InvitationService
-import klev.db.groups.memberships.GroupMembershipRoutes
-import klev.db.groups.memberships.GroupMembershipService
 import klev.db.images.ImageRoutes
 import klev.db.images.ImageService
+import klev.db.memberships.EventMembershipRoutes
+import klev.db.memberships.EventMembershipService
+import klev.db.memberships.GroupMembershipRoutes
+import klev.db.memberships.GroupMembershipService
 import klev.db.users.UserRoutes
 import klev.db.users.UserService
 import klev.db.users.apple.AppleUserService
@@ -77,6 +82,9 @@ private val userService =
     )
 private val imageService = ImageService(database = images)
 
+private val eventsToWishesService = EventsToWishesService(database = database)
+private val eventMembershipService = EventMembershipService(database = database)
+private val eventService = EventService(database = database, eventMembershipService = eventMembershipService)
 private val groupsToWishesService = GroupsToWishesService(database = database)
 private val groupMembershipService = GroupMembershipService(database = database)
 private val groupService = GroupService(database = database, groupMembershipService = groupMembershipService, userService = userService)
@@ -86,23 +94,26 @@ private val invitationService = InvitationService(database = database, groupMemb
 private val wishesService =
     WishesService(
         database = database,
-        groupsToWishesService = groupsToWishesService,
+        eventMembershipService = eventMembershipService,
+        eventService = eventService,
+        eventsToWishesService = eventsToWishesService,
         groupMembershipService = groupMembershipService,
         groupService = groupService,
+        groupsToWishesService = groupsToWishesService,
         imageService = imageService,
     )
 
 fun ApplicationCall.oauthUserId() =
     try {
         principal<UserIdPrincipal>()?.name?.let { UUID.fromString(it) }
-    } catch (e: IllegalArgumentException) {
+    } catch (_: IllegalArgumentException) {
         null
     }
 
 fun ApplicationCall.routeId(param: String = "id") =
     try {
         parameters[param]?.let { UUID.fromString(it) }
-    } catch (e: IllegalArgumentException) {
+    } catch (_: IllegalArgumentException) {
         null
     }
 
@@ -134,5 +145,15 @@ fun Application.module() {
                 groupMembershipService = groupMembershipService,
             ),
         imageRoutes = ImageRoutes(imageService),
+        eventRoutes =
+            EventRoutes(
+                eventMembershipService = eventMembershipService,
+                eventService = eventService,
+                invitationService = invitationService,
+                mailService = mailService,
+                userService = userService,
+                wishesService = wishesService,
+            ),
+        eventMembershipRoutes = EventMembershipRoutes(eventService, userService, eventMembershipService),
     )
 }

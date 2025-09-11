@@ -7,9 +7,9 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.RoutingCall
 import klev.db.auth.EmailService
 import klev.db.groups.invitations.InvitationService
-import klev.db.groups.memberships.GroupMembership
-import klev.db.groups.memberships.GroupMembershipRole
-import klev.db.groups.memberships.GroupMembershipService
+import klev.db.memberships.GroupMembership
+import klev.db.memberships.GroupMembershipService
+import klev.db.memberships.MembershipRole
 import klev.db.users.UserService
 import klev.db.wishes.WishesService
 import klev.oauthUserId
@@ -54,7 +54,7 @@ class GroupsRoutes(
                         )
                     partialGroup.members?.forEach { memberId ->
                         val invite =
-                            invitationService.create(
+                            invitationService.groupInvite(
                                 groupId = createdGroup.id,
                                 invitee = UUID.fromString(memberId),
                                 invitedBy = user.id,
@@ -136,7 +136,7 @@ class GroupsRoutes(
                 call.respond(HttpStatusCode.NotFound)
             } else {
                 val invite =
-                    invitationService.create(
+                    invitationService.groupInvite(
                         groupId = group.id,
                         invitedBy = user.id,
                         invitee = user.id,
@@ -217,7 +217,7 @@ class GroupsRoutes(
                         GroupMembership(
                             groupId = group.id,
                             userId = userId,
-                            role = GroupMembershipRole.MEMBER,
+                            role = MembershipRole.MEMBER,
                         ),
                     )
                 call.respond(HttpStatusCode.OK, membership)

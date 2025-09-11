@@ -13,9 +13,11 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
+import klev.db.events.EventRoutes
 import klev.db.groups.GroupsRoutes
-import klev.db.groups.memberships.GroupMembershipRoutes
 import klev.db.images.ImageRoutes
+import klev.db.memberships.EventMembershipRoutes
+import klev.db.memberships.GroupMembershipRoutes
 import klev.db.users.UserRoutes
 import klev.db.wishes.Occasion
 import klev.db.wishes.Status
@@ -28,6 +30,8 @@ fun Application.configureRouting(
     groupMembershipRoutes: GroupMembershipRoutes,
     userRoutes: UserRoutes,
     imageRoutes: ImageRoutes,
+    eventRoutes: EventRoutes,
+    eventMembershipRoutes: EventMembershipRoutes,
 ) {
     routing {
         swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml")
@@ -61,6 +65,79 @@ fun Application.configureRouting(
                 }
                 put {
                     userRoutes.updateById(call)
+                }
+            }
+            route("/events") {
+                get {
+                    eventRoutes.all(call)
+                }
+                post {
+                    eventRoutes.post(call)
+                }
+                route("/{eventId}") {
+                    get {
+                        eventRoutes.get(call)
+                    }
+                    delete {
+                        eventRoutes.deleteIfAdmin(call)
+                    }
+                    patch {
+                        eventRoutes.updateIfAdmin(call)
+                    }
+                    post("/invite") {
+                        eventRoutes.inviteIfCanInvite(call)
+                    }
+                    get("/role") {
+                        eventRoutes.getRoleInEvent(call)
+                    }
+                    get("/isMember") {
+                        eventRoutes.isInEvent(call)
+                    }
+                    route("/members") {
+                        get {
+                            eventMembershipRoutes.allByEvent(call)
+                        }
+                        get("/{memberId}") {
+                            eventMembershipRoutes.get(call)
+                        }
+                        get("/{memberId}/wishes") {
+                            eventRoutes.wishesForMember(call)
+                        }
+                        delete("/{memberId}") {
+                            eventMembershipRoutes.deleteIfCanAdmin(call)
+                        }
+                        post("/{memberId}") {
+                            eventMembershipRoutes.addUserToEvent(call)
+                        }
+                        post("/join") {
+                            eventRoutes.joinEvent(call)
+                        }
+                        post("/leave") {
+                            eventRoutes.leaveEvent(call)
+                        }
+                        route("/admins") {
+                            get {
+                                eventMembershipRoutes.getAdmins(call)
+                            }
+                            get("/{memberId}") {
+                                eventMembershipRoutes.getAdminById(call)
+                            }
+                            post("/{memberId}") {
+                                eventMembershipRoutes.makeAdmin(call)
+                            }
+                            delete("/{memberId}") {
+                                eventMembershipRoutes.removeAsAdmin(call)
+                            }
+                        }
+                    }
+                    route("/wishes") {
+                        get {
+                            eventRoutes.allWishes(call)
+                        }
+                        post {
+                            wishesRoutes.postForEvent(call)
+                        }
+                    }
                 }
             }
             route("/groups") {
