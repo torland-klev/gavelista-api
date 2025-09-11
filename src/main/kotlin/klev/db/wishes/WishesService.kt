@@ -15,11 +15,11 @@ import klev.db.wishes.Wishes.updated
 import klev.db.wishes.Wishes.url
 import klev.db.wishes.Wishes.userId
 import klev.db.wishes.Wishes.visibility
-import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.core.ResultRow
-import org.jetbrains.exposed.v1.datetime.CurrentTimestamp
 import org.jetbrains.exposed.v1.core.statements.InsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
+import org.jetbrains.exposed.v1.datetime.CurrentTimestamp
+import org.jetbrains.exposed.v1.jdbc.Database
 import java.util.UUID
 import kotlin.time.ExperimentalTime
 

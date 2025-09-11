@@ -9,13 +9,13 @@ import klev.db.groups.memberships.GroupMembership
 import klev.db.groups.memberships.GroupMembershipRole
 import klev.db.groups.memberships.GroupMembershipService
 import klev.db.users.UserService
-import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.datetime.CurrentTimestamp
-import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.core.statements.InsertStatement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
+import org.jetbrains.exposed.v1.datetime.CurrentTimestamp
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.util.UUID
 import kotlin.time.ExperimentalTime
 
@@ -100,6 +100,18 @@ class GroupService(
             null
         }
 
+    suspend fun getIfCanInvite(
+        groupId: UUID?,
+        userId: UUID?,
+    ): Group? =
+        if (groupId == null || userId == null) {
+            null
+        } else if (groupMembershipService.isMember(userId, groupId)) {
+            read(groupId)
+        } else {
+            null
+        }
+
     suspend fun allUserIsMemberOf(userId: UUID?) =
         if (userId == null) {
             emptyList()
@@ -111,5 +123,6 @@ class GroupService(
 
     suspend fun allMembersUserIsConnectedTo(id: UUID?) = allUserIsMemberOf(id).memberIds()
 
-    private suspend fun List<Group>.memberIds() = flatMap { group -> groupMembershipService.allByGroup(group.id).map { it.userId } }
+    private suspend fun List<Group>.memberIds() =
+        flatMap { group -> groupMembershipService.allByGroup(group.id).map { it.userId } }.distinct()
 }

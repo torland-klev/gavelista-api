@@ -124,14 +124,14 @@ class GroupsRoutes(
         }
     }
 
-    suspend fun inviteIfAdmin(call: ApplicationCall) {
+    suspend fun inviteIfCanInvite(call: ApplicationCall) {
         val userId = call.oauthUserId()
         val groupId = call.routeId("groupId")
         val user = userService.read(userId)
         if (user == null || groupId == null) {
             call.respond(HttpStatusCode.NotFound)
         } else {
-            val group = groupService.getIfCanAdmin(userId = userId, groupId = groupId)
+            val group = groupService.getIfCanInvite(userId = userId, groupId = groupId)
             if (group == null) {
                 call.respond(HttpStatusCode.NotFound)
             } else {
@@ -221,6 +221,25 @@ class GroupsRoutes(
                         ),
                     )
                 call.respond(HttpStatusCode.OK, membership)
+            } else {
+                call.respond(HttpStatusCode.Unauthorized)
+            }
+        }
+    }
+
+    suspend fun leaveGroup(call: RoutingCall) {
+        val userId = call.oauthUserId()
+        val groupId = call.routeId("groupId")
+        if (userId == null || groupId == null) {
+            call.respond(HttpStatusCode.NotFound)
+        } else {
+            val group = groupService.getIfHasReadAccess(groupId, userId)
+            val groupMembership = groupMembershipService.byGroupAndUser(groupId, userId)
+            if (groupMembership == null) {
+                call.respond(HttpStatusCode.NotFound)
+            } else if (group != null) {
+                groupMembershipService.delete(groupMembership.id, userId)
+                call.respond(HttpStatusCode.OK)
             } else {
                 call.respond(HttpStatusCode.Unauthorized)
             }

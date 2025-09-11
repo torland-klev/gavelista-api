@@ -81,7 +81,7 @@ fun Application.configureRouting(
                         groupsRoutes.updateIfAdmin(call)
                     }
                     post("/invite") {
-                        groupsRoutes.inviteIfAdmin(call)
+                        groupsRoutes.inviteIfCanInvite(call)
                     }
                     get("/role") {
                         groupsRoutes.getRoleInGroup(call)
@@ -107,6 +107,9 @@ fun Application.configureRouting(
                         }
                         post("/join") {
                             groupsRoutes.joinGroup(call)
+                        }
+                        post("/leave") {
+                            groupsRoutes.leaveGroup(call)
                         }
                         route("/admins") {
                             get {
