@@ -17,7 +17,9 @@ import klev.db.users.UserService
 import klev.env
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 class EmailService(
     private val httpClient: HttpClient,
     private val userService: UserService,

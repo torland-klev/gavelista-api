@@ -2,7 +2,7 @@ package klev.db.groups.memberships
 
 import klev.db.UserTable
 import klev.db.groups.Groups
-import org.jetbrains.exposed.sql.ReferenceOption
+import org.jetbrains.exposed.v1.core.ReferenceOption
 
 object GroupMemberships : UserTable() {
     val groupId = uuid("groupId").references(Groups.id, onDelete = ReferenceOption.CASCADE)

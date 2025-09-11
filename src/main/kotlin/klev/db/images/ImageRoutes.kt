@@ -15,7 +15,7 @@ import klev.routeId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.io.readByteArray
-import org.jetbrains.exposed.sql.statements.api.ExposedBlob
+import org.jetbrains.exposed.v1.core.statements.api.ExposedBlob
 
 class ImageRoutes(
     private val imageService: ImageService,

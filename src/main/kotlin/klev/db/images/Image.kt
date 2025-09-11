@@ -5,7 +5,7 @@ import klev.plugins.ContentTypeSerializer
 import klev.plugins.ExposedBlobSerializer
 import klev.plugins.UUIDSerializer
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.sql.statements.api.ExposedBlob
+import org.jetbrains.exposed.v1.core.statements.api.ExposedBlob
 import java.util.UUID
 
 @Serializable

@@ -15,13 +15,15 @@ import klev.db.wishes.Wishes.updated
 import klev.db.wishes.Wishes.url
 import klev.db.wishes.Wishes.userId
 import klev.db.wishes.Wishes.visibility
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.kotlin.datetime.CurrentTimestamp
-import org.jetbrains.exposed.sql.statements.InsertStatement
-import org.jetbrains.exposed.sql.statements.UpdateStatement
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.datetime.CurrentTimestamp
+import org.jetbrains.exposed.v1.core.statements.InsertStatement
+import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import java.util.UUID
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 class WishesService(
     database: Database,
     private val groupsToWishesService: GroupsToWishesService,
@@ -46,7 +48,7 @@ class WishesService(
     override suspend fun readMap(input: ResultRow): Wish =
         Wish(
             id = input[Wishes.id].value,
-            userId = input[Wishes.userId],
+            userId = input[userId],
             description = input[description],
             url = input[url],
             occasion = input[occasion],
@@ -113,9 +115,9 @@ class WishesService(
                     groupsToWishesService.deleteAllForWish(wishId = wish!!.id)
                     groupsToWishesService.create(GroupToWish(groupId = groupId, wishId = wish.id))
                 }
-            } catch (e: IllegalArgumentException) {
+            } catch (_: IllegalArgumentException) {
                 // Ignore
-            } catch (e: NullPointerException) {
+            } catch (_: NullPointerException) {
                 // Ignore
             }
 
@@ -161,9 +163,9 @@ class WishesService(
             if (group != null) {
                 groupsToWishesService.create(GroupToWish(groupId = groupId, wishId = wish.id))
             }
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             // Ignore
-        } catch (e: NullPointerException) {
+        } catch (_: NullPointerException) {
             // Ignore
         }
 

@@ -5,9 +5,9 @@ val dotenvVersion: String by project
 val angusMailVersion: String by project
 
 plugins {
-    kotlin("jvm") version "2.1.20"
-    id("io.ktor.plugin") version "3.1.1"
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.1.20"
+    kotlin("jvm") version "2.2.20"
+    id("io.ktor.plugin") version "3.2.3"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.2.20"
 }
 
 group = "klev"
@@ -49,6 +49,4 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
 
     implementation("org.postgresql:postgresql:$psqlVersion")
-
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:2.1.20")
 }

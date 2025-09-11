@@ -1,9 +1,11 @@
 package klev.db.users
 
-import org.jetbrains.exposed.dao.id.UUIDTable
-import org.jetbrains.exposed.sql.kotlin.datetime.CurrentTimestamp
-import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
+import org.jetbrains.exposed.v1.core.dao.id.UUIDTable
+import org.jetbrains.exposed.v1.datetime.CurrentTimestamp
+import org.jetbrains.exposed.v1.datetime.timestamp
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 object Users : UUIDTable() {
     val firstName = varchar("firstName", length = 63).nullable()
     val lastName = varchar("lastName", length = 63).nullable()

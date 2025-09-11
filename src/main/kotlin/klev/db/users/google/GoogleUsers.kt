@@ -1,9 +1,11 @@
 package klev.db.users.google
 
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.kotlin.datetime.CurrentTimestamp
-import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.datetime.CurrentTimestamp
+import org.jetbrains.exposed.v1.datetime.timestamp
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 object GoogleUsers : Table() {
     val id = varchar("id", length = 63)
     val name = varchar("name", length = 63)

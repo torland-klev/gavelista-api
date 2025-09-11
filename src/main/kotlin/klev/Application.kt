@@ -32,7 +32,7 @@ import klev.plugins.configureHTTP
 import klev.plugins.configureRouting
 import klev.plugins.configureSecurity
 import klev.plugins.configureSerialization
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.v1.jdbc.Database
 import java.util.UUID
 
 fun main() {

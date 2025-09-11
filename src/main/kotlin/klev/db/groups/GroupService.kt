@@ -9,14 +9,17 @@ import klev.db.groups.memberships.GroupMembership
 import klev.db.groups.memberships.GroupMembershipRole
 import klev.db.groups.memberships.GroupMembershipService
 import klev.db.users.UserService
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.kotlin.datetime.CurrentTimestamp
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.statements.InsertStatement
-import org.jetbrains.exposed.sql.statements.UpdateStatement
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.datetime.CurrentTimestamp
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.core.statements.InsertStatement
+import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import java.util.UUID
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 class GroupService(
     database: Database,
     private val groupMembershipService: GroupMembershipService,

@@ -7,6 +7,8 @@ import io.ktor.server.application.install
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.util.decodeBase64Bytes
 import io.ktor.util.encodeBase64
+import kotlinx.datetime.format
+import kotlinx.datetime.format.DateTimeComponents
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -14,8 +16,10 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
-import org.jetbrains.exposed.sql.statements.api.ExposedBlob
+import org.jetbrains.exposed.v1.core.statements.api.ExposedBlob
 import java.util.UUID
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 fun Application.configureSerialization() {
     install(ContentNegotiation) {
@@ -73,4 +77,18 @@ object ContentTypeSerializer : KSerializer<ContentType> {
     }
 
     override fun deserialize(decoder: Decoder): ContentType = ContentType.parse(decoder.decodeString())
+}
+
+@OptIn(ExperimentalTime::class)
+object InstantSerializer : KSerializer<Instant> {
+    override val descriptor = PrimitiveSerialDescriptor("Instant", PrimitiveKind.STRING)
+
+    override fun deserialize(decoder: Decoder): Instant = Instant.parse(decoder.decodeString())
+
+    override fun serialize(
+        encoder: Encoder,
+        value: Instant,
+    ) {
+        encoder.encodeString(value.toString())
+    }
 }

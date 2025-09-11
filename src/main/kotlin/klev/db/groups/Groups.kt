@@ -1,10 +1,12 @@
 package klev.db.groups
 
 import klev.db.users.Users
-import org.jetbrains.exposed.dao.id.UUIDTable
-import org.jetbrains.exposed.sql.kotlin.datetime.CurrentTimestamp
-import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
+import org.jetbrains.exposed.v1.core.dao.id.UUIDTable
+import org.jetbrains.exposed.v1.datetime.CurrentTimestamp
+import org.jetbrains.exposed.v1.datetime.timestamp
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 object Groups : UUIDTable() {
     val name = varchar("name", 31)
     val createdBy = uuid("createdBy").references(Users.id)
